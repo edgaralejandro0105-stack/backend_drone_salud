@@ -1,0 +1,449 @@
+{
+  "info": {
+    "name": "DronSalud API",
+    "description": "Colección completa con CRUD de todos los recursos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if(jsonData.token) pm.collectionVariables.set('token', jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"María\",\n  \"apellido\": \"Torres\",\n  \"cedula\": \"V-12345678\",\n  \"email\": \"admin@dronesalud.com\",\n  \"password\": \"Admin1234!\",\n  \"telefono\": \"3009876543\",\n  \"tipo_usuario\": \"admin\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if(jsonData.token) pm.collectionVariables.set('token', jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@dronesalud.com\",\n  \"password\": \"Admin1234!\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/auth/profile", "host": ["{{base_url}}"], "path": ["auth", "profile"] }
+          }
+        },
+        {
+          "name": "Register Cliente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan\",\n  \"apellido\": \"Pérez\",\n  \"cedula\": \"V-87654321\",\n  \"email\": \"cliente@dronesalud.com\",\n  \"password\": \"Cliente1234!\",\n  \"telefono\": \"3011234567\",\n  \"tipo_usuario\": \"cliente\",\n  \"direccion\": \"Av. España, Edif. San Carlos\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Register Farmacia",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Farmacia\",\n  \"apellido\": \"Farmatodo\",\n  \"cedula\": \"J-12345678\",\n  \"email\": \"farmacia@dronesalud.com\",\n  \"password\": \"Farmacia1234!\",\n  \"telefono\": \"3027654321\",\n  \"tipo_usuario\": \"farmacia\",\n  \"id_farmacia\": 1\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Register Operador",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos\",\n  \"apellido\": \"Gómez\",\n  \"cedula\": \"V-12345678\",\n  \"email\": \"operador@dronesalud.com\",\n  \"password\": \"Dron1234!\",\n  \"telefono\": \"3039876543\",\n  \"tipo_usuario\": \"operador\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏪 Farmacias",
+      "item": [
+        {
+          "name": "Crear",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"rif\": \"J-12345678-9\",\n    \"nombre_comercial\": \"Farmatodo\",\n    \"razon_social\": \"Farmatodo C.A.\",\n    \"telefono\": \"0276-3561234\",\n    \"email\": \"contacto@farmatodo.com\",\n    \"ciudad\": \"San Cristóbal\",\n    \"direccion\": \"Av. Carabobo, CC Las Pilas\",\n    \"lat\": \"7.7690\",\n    \"lng\": \"-72.2260\",\n    \"pago_movil_banco\": \"Banco Mercantil\",\n    \"pago_movil_telefono\": \"0412-3456789\",\n    \"pago_movil_ci\": \"J-12345678-9\",\n    \"pago_movil_titular\": \"Farmatodo C.A.\"\n  },\n  {\n    \"rif\": \"J-23456789-0\",\n    \"nombre_comercial\": \"Farmahorro\",\n    \"razon_social\": \"Farmahorro S.R.L.\",\n    \"telefono\": \"0276-3415678\",\n    \"email\": \"info@farmahorro.com\",\n    \"ciudad\": \"San Cristóbal\",\n    \"direccion\": \"Av. 19 de Abril, Sector La Ermita\",\n    \"lat\": \"7.7660\",\n    \"lng\": \"-72.2240\",\n    \"pago_movil_banco\": \"Banco Provincial\",\n    \"pago_movil_telefono\": \"0414-5678901\",\n    \"pago_movil_ci\": \"J-23456789-0\",\n    \"pago_movil_titular\": \"Farmahorro S.R.L.\"\n  },\n  {\n    \"rif\": \"J-34567890-1\",\n    \"nombre_comercial\": \"Locatel\",\n    \"razon_social\": \"Locatel Salud C.A.\",\n    \"telefono\": \"0276-3559876\",\n    \"email\": \"contacto@locatel.com\",\n    \"ciudad\": \"San Cristóbal\",\n    \"direccion\": \"Av. España, CC Sambil\",\n    \"lat\": \"7.7700\",\n    \"lng\": \"-72.2280\",\n    \"pago_movil_banco\": \"Banco Banesco\",\n    \"pago_movil_telefono\": \"0426-7890123\",\n    \"pago_movil_ci\": \"J-34567890-1\",\n    \"pago_movil_titular\": \"Locatel Salud C.A.\"\n  }\n]"
+            },
+            "url": { "raw": "{{base_url}}/farmacias", "host": ["{{base_url}}"], "path": ["farmacias"] }
+          }
+        },
+        {
+          "name": "Listar todas",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/farmacias", "host": ["{{base_url}}"], "path": ["farmacias"] }
+          }
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/farmacias/1", "host": ["{{base_url}}"], "path": ["farmacias", "1"] }
+          }
+        },
+        {
+          "name": "Actualizar",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_comercial\": \"Farmatodo Centro\",\n  \"telefono\": \"0276-3569999\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/farmacias/1", "host": ["{{base_url}}"], "path": ["farmacias", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar (desactivar)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/farmacias/3", "host": ["{{base_url}}"], "path": ["farmacias", "3"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💊 Productos",
+      "item": [
+        {
+          "name": "Crear",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id_farmacia\": 1,\n    \"nombre\": \"Ibuprofeno\",\n    \"concentracion\": \"400mg\",\n    \"categoria\": \"Analgésicos\",\n    \"unidad_medida\": \"Tabletas\",\n    \"precio\": 2500,\n    \"stock_actual\": 1240,\n    \"especificaciones\": \"Antiinflamatorio no esteroideo. Vía oral.\"\n  },\n  {\n    \"id_farmacia\": 1,\n    \"nombre\": \"Paracetamol\",\n    \"concentracion\": \"500mg\",\n    \"categoria\": \"Analgésicos\",\n    \"unidad_medida\": \"Tabletas\",\n    \"precio\": 1800,\n    \"stock_actual\": 2100,\n    \"especificaciones\": \"Analgésico y antipirético. Vía oral.\"\n  },\n  {\n    \"id_farmacia\": 1,\n    \"nombre\": \"Amoxicilina\",\n    \"concentracion\": \"500mg\",\n    \"categoria\": \"Antibióticos\",\n    \"unidad_medida\": \"Cápsulas\",\n    \"precio\": 3200,\n    \"stock_actual\": 860,\n    \"requiere_prescripcion\": true,\n    \"especificaciones\": \"Antibiótico betalactámico. Vía oral.\"\n  },\n  {\n    \"id_farmacia\": 2,\n    \"nombre\": \"Losartán\",\n    \"concentracion\": \"50mg\",\n    \"categoria\": \"Cardiovascular\",\n    \"unidad_medida\": \"Tabletas\",\n    \"precio\": 4200,\n    \"stock_actual\": 320,\n    \"especificaciones\": \"Antagonista de receptores de angiotensina II.\"\n  },\n  {\n    \"id_farmacia\": 3,\n    \"nombre\": \"Insulina NPH\",\n    \"concentracion\": \"100 UI/ml\",\n    \"categoria\": \"Endocrinología\",\n    \"unidad_medida\": \"Ampollas\",\n    \"precio\": 18500,\n    \"stock_actual\": 8,\n    \"especificaciones\": \"Insulina de acción intermedia. Vía subcutánea.\"\n  }\n]"
+            },
+            "url": { "raw": "{{base_url}}/productos", "host": ["{{base_url}}"], "path": ["productos"] }
+          }
+        },
+        {
+          "name": "Listar (filtro farmacia)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/productos?id_farmacia=1",
+              "host": ["{{base_url}}"],
+              "path": ["productos"],
+              "query": [{ "key": "id_farmacia", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "Listar (filtro categoría)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/productos?categoria=Analgésicos",
+              "host": ["{{base_url}}"],
+              "path": ["productos"],
+              "query": [{ "key": "categoria", "value": "Analgésicos" }]
+            }
+          }
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"] }
+          }
+        },
+        {
+          "name": "Actualizar",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"precio\": 3000,\n  \"stock_actual\": 1100\n}"
+            },
+            "url": { "raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar (desactivar)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/productos/5", "host": ["{{base_url}}"], "path": ["productos", "5"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Pedidos",
+      "item": [
+        {
+          "name": "Crear",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_farmacia\": 1,\n  \"subtotal\": 6800,\n  \"cargo_dron\": 5000,\n  \"iva\": 1088,\n  \"total\": 12888,\n  \"destino_nombre\": \"Residencia Juan Pérez\",\n  \"destino_direccion\": \"Av. España, Edif. San Carlos\",\n  \"latitud_entrega\": \"7.7710\",\n  \"longitud_entrega\": \"-72.2270\",\n  \"productos\": [\n    {\n      \"id_producto\": 1,\n      \"nombre_producto\": \"Ibuprofeno 400mg\",\n      \"cantidad\": 2,\n      \"precio_unitario\": 2500\n    },\n    {\n      \"id_producto\": 2,\n      \"nombre_producto\": \"Paracetamol 500mg\",\n      \"cantidad\": 1,\n      \"precio_unitario\": 1800\n    }\n  ]\n}"
+            },
+            "url": { "raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"] }
+          }
+        },
+        {
+          "name": "Listar (cliente ve los suyos)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"] }
+          }
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/pedidos/1", "host": ["{{base_url}}"], "path": ["pedidos", "1"] }
+          }
+        },
+        {
+          "name": "Cambiar estado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado_pedido\": \"Pagado\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/pedidos/1/estado", "host": ["{{base_url}}"], "path": ["pedidos", "1", "estado"] }
+          }
+        },
+        {
+          "name": "Asignar dron y operador",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_dron\": 1,\n  \"id_operador\": 1\n}"
+            },
+            "url": { "raw": "{{base_url}}/pedidos/1/asignar", "host": ["{{base_url}}"], "path": ["pedidos", "1", "asignar"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 Pagos",
+      "item": [
+        {
+          "name": "Registrar pago",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_pedido\": 1,\n  \"id_farmacia\": 1,\n  \"metodo\": \"PagoMovil\",\n  \"monto\": 12888,\n  \"referencia\": \"246813579\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/pagos", "host": ["{{base_url}}"], "path": ["pagos"] }
+          }
+        },
+        {
+          "name": "Confirmar pago (farmacia)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/pagos/1/confirmar", "host": ["{{base_url}}"], "path": ["pagos", "1", "confirmar"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛸 Drones",
+      "item": [
+        {
+          "name": "Crear",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"modelo\": \"DJI Mavic 3 Enterprise\",\n    \"fabricante\": \"DJI\",\n    \"matricula\": \"YV-312-DRN\",\n    \"numero_serie\": \"SN-3KD9F2A\",\n    \"fecha_adquisicion\": \"2025-03-15\",\n    \"bateria_porcentaje\": 100,\n    \"ubicacion\": \"Base central\"\n  },\n  {\n    \"modelo\": \"DJI Matrice 350 RTK\",\n    \"fabricante\": \"DJI\",\n    \"matricula\": \"YV-871-DRN\",\n    \"numero_serie\": \"SN-7FJ3B8C\",\n    \"fecha_adquisicion\": \"2025-06-01\",\n    \"bateria_porcentaje\": 85,\n    \"ubicacion\": \"Base norte\"\n  },\n  {\n    \"modelo\": \"Autel EVO Max 4T\",\n    \"fabricante\": \"Autel\",\n    \"matricula\": \"YV-455-DRN\",\n    \"numero_serie\": \"SN-1D8G5H7\",\n    \"fecha_adquisicion\": \"2025-09-20\",\n    \"bateria_porcentaje\": 60,\n    \"ubicacion\": \"Base central\"\n  },\n  {\n    \"modelo\": \"DJI Mavic 3E Thermal\",\n    \"fabricante\": \"DJI\",\n    \"matricula\": \"YV-223-DRN\",\n    \"numero_serie\": \"SN-4K2L9M1\",\n    \"fecha_adquisicion\": \"2026-01-10\",\n    \"bateria_porcentaje\": 100,\n    \"ubicacion\": \"Base sur\"\n  }\n]"
+            },
+            "url": { "raw": "{{base_url}}/drones", "host": ["{{base_url}}"], "path": ["drones"] }
+          }
+        },
+        {
+          "name": "Listar todos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/drones", "host": ["{{base_url}}"], "path": ["drones"] }
+          }
+        },
+        {
+          "name": "Disponibles",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/drones/disponibles", "host": ["{{base_url}}"], "path": ["drones", "disponibles"] }
+          }
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/drones/1", "host": ["{{base_url}}"], "path": ["drones", "1"] }
+          }
+        },
+        {
+          "name": "Actualizar",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bateria_porcentaje\": 45,\n  \"estado_operativo\": \"Cargando\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/drones/1", "host": ["{{base_url}}"], "path": ["drones", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar (dar de baja)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/drones/4", "host": ["{{base_url}}"], "path": ["drones", "4"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧑‍✈️ Operadores",
+      "item": [
+        {
+          "name": "Crear",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_usuario\": 4,\n  \"cedula\": \"V-12345678\",\n  \"nombre_operador\": \"Carlos Gómez\",\n  \"telefono\": \"3039876543\",\n  \"email\": \"carlos.gomez@dronesalud.com\",\n  \"nro_licencia\": \"DRN-LIC-2024-047\",\n  \"tipo_licencia\": \"Comercial\",\n  \"horas_vuelo\": 1250,\n  \"estado_disponibilidad\": true\n}"
+            },
+            "url": { "raw": "{{base_url}}/operadores", "host": ["{{base_url}}"], "path": ["operadores"] }
+          }
+        },
+        {
+          "name": "Listar todos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/operadores", "host": ["{{base_url}}"], "path": ["operadores"] }
+          }
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/operadores/1", "host": ["{{base_url}}"], "path": ["operadores", "1"] }
+          }
+        },
+        {
+          "name": "Actualizar",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"horas_vuelo\": 1300,\n  \"telefono\": \"3039870000\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/operadores/1", "host": ["{{base_url}}"], "path": ["operadores", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar (desactivar)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/operadores/1", "host": ["{{base_url}}"], "path": ["operadores", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "ℹ️ Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] }
+          }
+        }
+      ]
+    }
+  ]
+}

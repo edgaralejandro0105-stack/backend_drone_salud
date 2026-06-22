@@ -1,12 +1,24 @@
 {
+  "name": "back_drone_salud",
+  "version": "1.0.0",
+  "description": "API de DronSalud - Entrega de medicamentos via drones",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
   "dependencies": {
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
-    "pg": "^8.21.0"
+    "multer": "^2.2.0",
+    "multer-storage-cloudinary": "^4.0.0",
+    "pg": "^8.21.0",
+    "sequelize": "^6.37.8",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
