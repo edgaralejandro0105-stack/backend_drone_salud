@@ -82,4 +82,19 @@ const changePassword = async (id_usuario, currentPassword, newPassword) => {
   return { message: 'Contraseña actualizada correctamente' };
 };
 
-module.exports = { register, login, getProfile, changePassword };
+const updateProfile = async (id_usuario, data) => {
+  const usuario = await Usuario.findByPk(id_usuario);
+  if (!usuario) throw new AppError('Usuario no encontrado', 404);
+  const allowedFields = ['nombre', 'apellido', 'email', 'telefono', 'direccion', 'foto_url'];
+  const payload = {};
+  for (const field of allowedFields) {
+    if (data[field] !== undefined) payload[field] = data[field];
+  }
+  await usuario.update(payload);
+  const updated = await Usuario.findByPk(id_usuario, {
+    attributes: { exclude: ['password_hash'] }
+  });
+  return updated;
+};
+
+module.exports = { register, login, getProfile, changePassword, updateProfile };

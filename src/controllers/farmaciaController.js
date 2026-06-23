@@ -26,4 +26,9 @@ const remove = catchAsync(async (req, res) => {
   res.json(result);
 });
 
-module.exports = { create, getAll, getById, update, remove };
+const updateOwn = catchAsync(async (req, res) => {
+  const farmacia = await farmaciaService.updateOwn(req.user.id_farmacia, req.body);
+  res.json(farmacia);
+});
+
+module.exports = { create, getAll, getById, update, updateOwn, remove };

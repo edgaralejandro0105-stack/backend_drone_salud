@@ -1,28 +1,63 @@
-const { Pedido, DetallePedido, Producto, Pago } = require('../models');
+const { Pedido, DetallePedido, Producto, Pago, FlotaDron, sequelize } = require('../models');
 const AppError = require('../utils/AppError');
 
 const create = async (id_cliente, data) => {
   const { productos, ...pedidoData } = data;
 
-  const pedido = await Pedido.create({
-    ...pedidoData,
-    id_cliente,
-    estado_pedido: 'Pendiente'
-  });
+  const t = await sequelize.transaction();
 
-  const detalles = productos.map((p) => ({
-    id_pedido: pedido.id_pedido,
-    id_producto: p.id_producto,
-    nombre_producto: p.nombre_producto,
-    cantidad: p.cantidad,
-    precio_unitario: p.precio_unitario
-  }));
+  try {
+    for (const p of productos) {
+      const producto = await Producto.findByPk(p.id_producto, { transaction: t });
+      if (!producto) {
+        throw new AppError(`Producto "${p.nombre_producto}" no encontrado`, 404);
+      }
+      if (Number(producto.stock_actual) < p.cantidad) {
+        throw new AppError(
+          `Stock insuficiente para "${p.nombre_producto}". Disponible: ${producto.stock_actual}, solicitado: ${p.cantidad}`,
+          400
+        );
+      }
+    }
 
-  await DetallePedido.bulkCreate(detalles);
+    const pedido = await Pedido.create({
+      ...pedidoData,
+      id_cliente,
+      estado_pedido: 'Pendiente'
+    }, { transaction: t });
 
-  return Pedido.findByPk(pedido.id_pedido, {
-    include: [{ association: 'detalles' }]
-  });
+    const detalles = productos.map((p) => ({
+      id_pedido: pedido.id_pedido,
+      id_producto: p.id_producto,
+      nombre_producto: p.nombre_producto,
+      cantidad: p.cantidad,
+      precio_unitario: p.precio_unitario
+    }));
+
+    await DetallePedido.bulkCreate(detalles, { transaction: t });
+
+    for (const p of productos) {
+      const [_, metadata] = await sequelize.query(
+        'UPDATE productos SET stock_actual = stock_actual - :cantidad WHERE id_producto = :id AND stock_actual >= :cantidad',
+        {
+          replacements: { id: p.id_producto, cantidad: p.cantidad },
+          transaction: t
+        }
+      );
+      if (metadata.rowCount === 0) {
+        throw new AppError(`Stock insuficiente para "${p.nombre_producto}" al confirmar el pedido`, 400);
+      }
+    }
+
+    await t.commit();
+
+    return Pedido.findByPk(pedido.id_pedido, {
+      include: [{ association: 'detalles' }]
+    });
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
 };
 
 const getAll = async (filtros = {}) => {
@@ -36,7 +71,10 @@ const getAll = async (filtros = {}) => {
     include: [
       { association: 'detalles' },
       { association: 'pago' },
-      { association: 'farmacia' }
+      { association: 'farmacia' },
+      { association: 'dron' },
+      { association: 'operador', include: [{ association: 'usuario', attributes: ['nombre', 'apellido'] }] },
+      { association: 'cliente', attributes: { exclude: ['password_hash'] } }
     ],
     order: [['fecha_creacion', 'DESC']]
   });
@@ -81,7 +119,12 @@ const updateEstado = async (id, estado_pedido) => {
 
   const updateData = { estado_pedido };
   if (estado_pedido === 'En transito') updateData.timestamp_inicio = new Date();
-  if (estado_pedido === 'Entregado') updateData.timestamp_fin = new Date();
+  if (estado_pedido === 'Entregado') {
+    updateData.timestamp_fin = new Date();
+    if (pedido.id_dron) {
+      await FlotaDron.update({ estado_operativo: 'Activo' }, { where: { id_dron: pedido.id_dron } });
+    }
+  }
 
   await pedido.update(updateData);
   return pedido;
@@ -94,6 +137,7 @@ const asignarDronOperador = async (id, id_dron, id_operador) => {
     throw new AppError('El pedido debe estar en estado Preparado', 400);
   }
   await pedido.update({ id_dron, id_operador, estado_pedido: 'En transito', timestamp_inicio: new Date() });
+  await FlotaDron.update({ estado_operativo: 'Transito' }, { where: { id_dron } });
   return pedido;
 };
 

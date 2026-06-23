@@ -32,9 +32,9 @@ const FlotaDron = sequelize.define('FlotaDron', {
   },
   estado_operativo: {
     type: DataTypes.STRING(20),
-    defaultValue: 'Disponible',
+    defaultValue: 'Activo',
     validate: {
-      isIn: [['Disponible', 'En vuelo', 'Cargando', 'Mantenimiento', 'Baja']]
+      isIn: [['Activo', 'Transito', 'Mantenimiento', 'Cancelado']]
     }
   },
   horas_vuelo: {

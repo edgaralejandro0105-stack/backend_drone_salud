@@ -16,10 +16,6 @@ const Farmacia = sequelize.define('Farmacia', {
     type: DataTypes.STRING(100),
     allowNull: false
   },
-  razon_social: {
-    type: DataTypes.STRING(150),
-    defaultValue: ''
-  },
   telefono: {
     type: DataTypes.STRING(15),
     defaultValue: ''

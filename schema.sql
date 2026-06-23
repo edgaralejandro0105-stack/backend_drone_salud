@@ -8,7 +8,6 @@ CREATE TABLE farmacias_asociadas (
   id_farmacia SERIAL PRIMARY KEY,
   rif VARCHAR(20) NOT NULL UNIQUE,
   nombre_comercial VARCHAR(100) NOT NULL,
-  razon_social VARCHAR(150) NOT NULL DEFAULT '',
   telefono VARCHAR(15) NOT NULL DEFAULT '',
   email VARCHAR(60) NOT NULL DEFAULT '',
   ciudad VARCHAR(50) NOT NULL DEFAULT '',

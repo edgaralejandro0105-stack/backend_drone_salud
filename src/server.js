@@ -16,6 +16,7 @@ const dronRoutes = require('./routes/drones.routes');
 const operadorRoutes = require('./routes/operadores.routes');
 const uploadRoutes = require('./routes/upload.routes');
 const usuarioRoutes = require('./routes/usuarios.routes');
+const direccionRoutes = require('./routes/direcciones.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -40,6 +41,7 @@ app.use('/api/operadores', operadorRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/api/upload', uploadRoutes);
 app.use('/api/usuarios', usuarioRoutes);
+app.use('/api/direcciones', direccionRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
@@ -50,6 +52,16 @@ app.use(errorHandler);
 const start = async () => {
   try {
     await sequelize.sync();
+
+    try {
+      await sequelize.query(`ALTER TABLE flota_drones DROP CONSTRAINT IF EXISTS "flota_drones_estado_operativo_check"`);
+      await sequelize.query(`ALTER TABLE flota_drones ADD CONSTRAINT "flota_drones_estado_operativo_check" CHECK (estado_operativo IN ('Activo', 'Transito', 'Mantenimiento', 'Cancelado'))`);
+      await sequelize.query(`UPDATE flota_drones SET estado_operativo = 'Activo' WHERE estado_operativo NOT IN ('Activo', 'Mantenimiento', 'Cancelado')`);
+      console.log('✅ Restriccion de estado de drones actualizada');
+    } catch (err) {
+      console.log('⚠️  No se pudo actualizar la restriccion (probablemente ya esta actualizada):', err.message);
+    }
+
     console.log('📦 Modelos sincronizados con la base de datos');
     app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);

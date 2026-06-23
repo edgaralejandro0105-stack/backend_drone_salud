@@ -3,7 +3,6 @@ const { z } = require('zod');
 const createFarmaciaSchema = z.object({
   rif: z.string().min(5, { message: 'El RIF debe tener al menos 5 caracteres' }).max(20, { message: 'El RIF no puede exceder 20 caracteres' }),
   nombre_comercial: z.string().min(3, { message: 'El nombre debe tener al menos 3 caracteres' }).max(100, { message: 'El nombre no puede exceder 100 caracteres' }),
-  razon_social: z.string().max(150, { message: 'La razón social no puede exceder 150 caracteres' }).optional().default(''),
   telefono: z.string().max(15, { message: 'El teléfono no puede exceder 15 caracteres' }).optional().default(''),
   telefono_responsable: z.string().max(15, { message: 'El teléfono del responsable no puede exceder 15 caracteres' }).optional().default(''),
   email: z.string().email({ message: 'Correo electrónico inválido' }).max(60, { message: 'El correo no puede exceder 60 caracteres' }).optional().default(''),

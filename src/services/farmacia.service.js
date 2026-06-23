@@ -26,6 +26,21 @@ const update = async (id, data) => {
   return farmacia;
 };
 
+const updateOwn = async (id, data) => {
+  const farmacia = await Farmacia.findByPk(id);
+  if (!farmacia) throw new AppError('Farmacia no encontrada', 404);
+  const allowedFields = ['nombre_comercial', 'telefono', 'telefono_responsable', 'email', 'rif', 'logo_url', 'foto_fachada_url', 'pago_movil_banco', 'pago_movil_telefono', 'pago_movil_ci', 'pago_movil_titular'];
+  const payload = {};
+  for (const field of allowedFields) {
+    if (data[field] !== undefined) payload[field] = data[field];
+  }
+  await farmacia.update(payload);
+  if (data.logo_url !== undefined) {
+    await Usuario.update({ foto_url: data.logo_url }, { where: { id_farmacia: id, tipo_usuario: 'farmacia' } });
+  }
+  return farmacia;
+};
+
 const remove = async (id) => {
   const farmacia = await Farmacia.findByPk(id);
   if (!farmacia) throw new AppError('Farmacia no encontrada', 404);
@@ -36,4 +51,4 @@ const remove = async (id) => {
   return { message: 'Farmacia eliminada correctamente' };
 };
 
-module.exports = { create, getAll, getById, update, remove };
+module.exports = { create, getAll, getById, update, updateOwn, remove };

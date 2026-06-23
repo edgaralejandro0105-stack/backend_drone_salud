@@ -9,7 +9,7 @@ router.use(verificarToken);
 router.post('/', requiereRoles('cliente'), validateSchema(createPedidoSchema), pedidoController.create);
 router.get('/', pedidoController.getAll);
 router.get('/:id', pedidoController.getById);
-router.patch('/:id/estado', requiereRoles('admin', 'farmacia'), pedidoController.updateEstado);
+router.patch('/:id/estado', requiereRoles('admin', 'farmacia', 'operador'), pedidoController.updateEstado);
 router.post('/:id/asignar', requiereRoles('admin', 'operador'), pedidoController.asignarDronOperador);
 
 module.exports = router;

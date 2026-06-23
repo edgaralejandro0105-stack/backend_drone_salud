@@ -1,4 +1,5 @@
-const { FlotaDron, MantenimientoDron } = require('../models');
+const { FlotaDron, MantenimientoDron, Pedido } = require('../models');
+const { Op } = require('sequelize');
 const AppError = require('../utils/AppError');
 
 const create = async (data) => {
@@ -30,10 +31,28 @@ const remove = async (id) => {
 };
 
 const getDisponibles = async () => {
-  return FlotaDron.findAll({
-    where: { estado_operativo: 'Disponible' },
+  const activos = await FlotaDron.findAll({
+    where: { estado_operativo: 'Activo' },
     order: [['id_dron', 'ASC']]
   });
+
+  const enUso = await Pedido.findAll({
+    attributes: ['id_dron'],
+    where: {
+      id_dron: { [Op.ne]: null },
+      estado_pedido: { [Op.in]: ['Pendiente', 'Pagado', 'Preparado', 'En transito'] }
+    }
+  });
+
+  const idsEnUso = new Set(enUso.map(p => p.id_dron));
+  return activos.filter(d => !idsEnUso.has(d.id_dron));
 };
 
-module.exports = { create, getAll, getById, update, remove, getDisponibles };
+const liberarDron = async (id_dron) => {
+  const dron = await FlotaDron.findByPk(id_dron);
+  if (!dron) throw new AppError('Dron no encontrado', 404);
+  await dron.update({ estado_operativo: 'Activo' });
+  return dron;
+};
+
+module.exports = { create, getAll, getById, update, remove, getDisponibles, liberarDron };

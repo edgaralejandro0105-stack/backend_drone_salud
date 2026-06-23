@@ -23,4 +23,9 @@ const changePassword = catchAsync(async (req, res) => {
   res.json(result);
 });
 
-module.exports = { register, login, getProfile, changePassword };
+const updateProfile = catchAsync(async (req, res) => {
+  const usuario = await authService.updateProfile(req.user.id_usuario, req.body);
+  res.json(usuario);
+});
+
+module.exports = { register, login, getProfile, changePassword, updateProfile };
