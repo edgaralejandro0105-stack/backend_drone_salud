@@ -123,6 +123,7 @@ CREATE TABLE pedidos (
   id_farmacia INTEGER NOT NULL REFERENCES farmacias_asociadas(id_farmacia),
   id_dron INTEGER REFERENCES flota_drones(id_dron),
   id_operador INTEGER REFERENCES operadores_vuelo(id_operador),
+  id_usuario_despacho INTEGER REFERENCES usuarios(id_usuario),
   fecha_creacion TIMESTAMP NOT NULL DEFAULT NOW(),
   estado_pedido VARCHAR(20) NOT NULL DEFAULT 'Pendiente' CHECK (estado_pedido IN ('Pendiente','Pagado','Preparado','En transito','Entregado','Cancelado','Reembolsado')),
   subtotal DECIMAL(12,2) NOT NULL CHECK (subtotal >= 0),

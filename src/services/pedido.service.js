@@ -144,13 +144,13 @@ const updateEstado = async (id, estado_pedido) => {
   return pedido;
 };
 
-const asignarDronOperador = async (id, id_dron, id_operador) => {
+const asignarDronOperador = async (id, id_dron, id_operador, id_usuario_despacho) => {
   const pedido = await Pedido.findByPk(id);
   if (!pedido) throw new AppError('Pedido no encontrado', 404);
   if (pedido.estado_pedido !== 'Preparado') {
     throw new AppError('El pedido debe estar en estado Preparado', 400);
   }
-  await pedido.update({ id_dron, id_operador, estado_pedido: 'En transito', timestamp_inicio: new Date() });
+  await pedido.update({ id_dron, id_operador, id_usuario_despacho, estado_pedido: 'En transito', timestamp_inicio: new Date() });
   await FlotaDron.update({ estado_operativo: 'Transito' }, { where: { id_dron } });
   return pedido;
 };

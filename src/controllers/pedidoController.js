@@ -32,7 +32,8 @@ const updateEstado = catchAsync(async (req, res) => {
 
 const asignarDronOperador = catchAsync(async (req, res) => {
   const { id_dron, id_operador } = req.body;
-  const pedido = await pedidoService.asignarDronOperador(req.params.id, id_dron, id_operador);
+  const id_usuario_despacho = req.user.id_usuario;
+  const pedido = await pedidoService.asignarDronOperador(req.params.id, id_dron, id_operador, id_usuario_despacho);
   res.json(pedido);
 });
 
