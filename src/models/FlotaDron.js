@@ -45,6 +45,10 @@ const FlotaDron = sequelize.define('FlotaDron', {
   foto_url: {
     type: DataTypes.TEXT,
     defaultValue: ''
+  },
+  motivo_mantenimiento: {
+    type: DataTypes.TEXT,
+    defaultValue: ''
   }
 }, {
   tableName: 'flota_drones',

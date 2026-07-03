@@ -11,7 +11,7 @@ const MantenimientoDron = sequelize.define('MantenimientoDron', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  id_operador: {
+  id_usuario: {
     type: DataTypes.INTEGER
   },
   tipo_servicio: {
@@ -24,15 +24,6 @@ const MantenimientoDron = sequelize.define('MantenimientoDron', {
   descripcion_falla: {
     type: DataTypes.TEXT,
     defaultValue: ''
-  },
-  piezas_reemplazadas: {
-    type: DataTypes.TEXT,
-    defaultValue: ''
-  },
-  costo: {
-    type: DataTypes.DECIMAL(12,2),
-    defaultValue: 0,
-    validate: { min: 0 }
   },
   fecha_ingreso: {
     type: DataTypes.DATE,

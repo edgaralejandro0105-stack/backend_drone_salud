@@ -33,7 +33,7 @@ const Farmacia = sequelize.define('Farmacia', {
     defaultValue: ''
   },
   direccion: {
-    type: DataTypes.STRING(150),
+    type: DataTypes.TEXT,
     defaultValue: ''
   },
   lat: {

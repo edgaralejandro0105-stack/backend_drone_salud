@@ -31,4 +31,10 @@ const updateOwn = catchAsync(async (req, res) => {
   res.json(farmacia);
 });
 
-module.exports = { create, getAll, getById, update, updateOwn, remove };
+const getOwnStats = catchAsync(async (req, res) => {
+  const { desde, hasta } = req.query;
+  const stats = await farmaciaService.getStats(req.user.id_farmacia, { desde, hasta });
+  res.json(stats);
+});
+
+module.exports = { create, getAll, getById, update, updateOwn, getOwnStats, remove };

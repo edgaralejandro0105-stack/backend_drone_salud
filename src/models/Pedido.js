@@ -21,6 +21,9 @@ const Pedido = sequelize.define('Pedido', {
   id_operador: {
     type: DataTypes.INTEGER
   },
+  id_usuario_despacho: {
+    type: DataTypes.INTEGER
+  },
   fecha_creacion: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW

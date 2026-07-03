@@ -17,7 +17,7 @@ const getById = catchAsync(async (req, res) => {
 });
 
 const update = catchAsync(async (req, res) => {
-  const dron = await dronService.update(req.params.id, req.body);
+  const dron = await dronService.update(req.params.id, req.body, req.user?.id_usuario);
   res.json(dron);
 });
 
@@ -31,4 +31,9 @@ const getDisponibles = catchAsync(async (req, res) => {
   res.json(drones);
 });
 
-module.exports = { create, getAll, getById, update, remove, getDisponibles };
+const getHistorial = catchAsync(async (req, res) => {
+  const historial = await dronService.getHistorial(req.params.id);
+  res.json(historial);
+});
+
+module.exports = { create, getAll, getById, update, remove, getDisponibles, getHistorial };

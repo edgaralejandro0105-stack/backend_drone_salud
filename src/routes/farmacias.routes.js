@@ -10,6 +10,7 @@ router.get('/', farmaciaController.getAll);
 router.get('/:id', farmaciaController.getById);
 router.post('/', requiereRoles('admin'), validateSchema(createFarmaciaSchema), farmaciaController.create);
 router.put('/own', farmaciaController.updateOwn);
+router.get('/own/stats', farmaciaController.getOwnStats);
 router.put('/:id', requiereRoles('admin'), farmaciaController.update);
 router.delete('/:id', requiereRoles('admin'), farmaciaController.remove);
 

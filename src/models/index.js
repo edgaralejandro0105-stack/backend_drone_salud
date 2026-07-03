@@ -13,6 +13,8 @@ const OperadorVuelo = require('./OperadorVuelo');
 const BitacoraTelemetria = require('./BitacoraTelemetria');
 const DireccionCliente = require('./DireccionCliente');
 const Calificacion = require('./Calificacion');
+const Configuracion = require('./Configuracion');
+const SuspensionHistorial = require('./SuspensionHistorial');
 
 // ========== USUARIOS ==========
 Usuario.belongsTo(Farmacia, { foreignKey: 'id_farmacia', as: 'farmacia' });
@@ -42,6 +44,8 @@ FlotaDron.hasMany(Pedido, { foreignKey: 'id_dron', as: 'pedidos' });
 Pedido.belongsTo(OperadorVuelo, { foreignKey: 'id_operador', as: 'operador' });
 OperadorVuelo.hasMany(Pedido, { foreignKey: 'id_operador', as: 'pedidos' });
 
+Pedido.belongsTo(Usuario, { foreignKey: 'id_usuario_despacho', as: 'despachador' });
+
 // ========== DETALLE PEDIDO ==========
 DetallePedido.belongsTo(Pedido, { foreignKey: 'id_pedido', as: 'pedido' });
 Pedido.hasMany(DetallePedido, { foreignKey: 'id_pedido', as: 'detalles' });
@@ -60,7 +64,7 @@ Pago.belongsTo(Farmacia, { foreignKey: 'id_farmacia', as: 'farmacia' });
 MantenimientoDron.belongsTo(FlotaDron, { foreignKey: 'id_dron', as: 'dron' });
 FlotaDron.hasMany(MantenimientoDron, { foreignKey: 'id_dron', as: 'mantenimientos' });
 
-MantenimientoDron.belongsTo(OperadorVuelo, { foreignKey: 'id_operador', as: 'operador' });
+MantenimientoDron.belongsTo(Usuario, { foreignKey: 'id_usuario', as: 'usuario' });
 
 // ========== TELEMETRIA ==========
 BitacoraTelemetria.belongsTo(Pedido, { foreignKey: 'id_pedido', as: 'pedido' });
@@ -78,6 +82,12 @@ Calificacion.belongsTo(Usuario, { foreignKey: 'id_cliente', as: 'cliente' });
 Calificacion.belongsTo(Farmacia, { foreignKey: 'id_farmacia', as: 'farmacia' });
 Calificacion.belongsTo(OperadorVuelo, { foreignKey: 'id_operador', as: 'operador' });
 
+// ========== SUSPENSIONES ==========
+SuspensionHistorial.belongsTo(Usuario, { foreignKey: 'id_usuario', as: 'usuario' });
+Usuario.hasMany(SuspensionHistorial, { foreignKey: 'id_usuario', as: 'suspensiones' });
+
+SuspensionHistorial.belongsTo(Usuario, { foreignKey: 'suspendido_por', as: 'suspendidoPor' });
+
 module.exports = {
   sequelize,
   Usuario,
@@ -92,5 +102,7 @@ module.exports = {
   OperadorVuelo,
   BitacoraTelemetria,
   DireccionCliente,
-  Calificacion
+  Calificacion,
+  Configuracion,
+  SuspensionHistorial
 };

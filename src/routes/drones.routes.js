@@ -6,6 +6,7 @@ router.use(verificarToken);
 
 router.get('/disponibles', dronController.getDisponibles);
 router.get('/', dronController.getAll);
+router.get('/:id/historial', dronController.getHistorial);
 router.get('/:id', dronController.getById);
 router.post('/', requiereRoles('admin', 'operador'), dronController.create);
 router.put('/:id', requiereRoles('admin', 'operador'), dronController.update);

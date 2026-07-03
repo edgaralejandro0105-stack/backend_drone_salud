@@ -7,7 +7,7 @@ const createFarmaciaSchema = z.object({
   telefono_responsable: z.string().max(15, { message: 'El teléfono del responsable no puede exceder 15 caracteres' }).optional().default(''),
   email: z.string().email({ message: 'Correo electrónico inválido' }).max(60, { message: 'El correo no puede exceder 60 caracteres' }).optional().default(''),
   ciudad: z.string().max(50, { message: 'La ciudad no puede exceder 50 caracteres' }).optional().default(''),
-  direccion: z.string().max(150, { message: 'La dirección no puede exceder 150 caracteres' }).optional().default(''),
+  direccion: z.string().optional().default(''),
   lat: z.string().max(50, { message: 'La latitud no puede exceder 50 caracteres' }).optional().default(''),
   lng: z.string().max(50, { message: 'La longitud no puede exceder 50 caracteres' }).optional().default(''),
   logo_url: z.string().optional().default(''),

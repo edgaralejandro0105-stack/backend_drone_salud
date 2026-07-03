@@ -7,12 +7,14 @@ const create = catchAsync(async (req, res) => {
 });
 
 const getAll = catchAsync(async (req, res) => {
-  const { id_farmacia, estado_pedido } = req.query;
+  const { id_farmacia, estado_pedido, desde, hasta } = req.query;
   const filtros = {};
   if (req.user.tipo_usuario === 'cliente') filtros.id_cliente = req.user.id_usuario;
   if (req.user.tipo_usuario === 'farmacia') filtros.id_farmacia = req.user.id_farmacia;
   if (id_farmacia) filtros.id_farmacia = id_farmacia;
   if (estado_pedido) filtros.estado_pedido = estado_pedido;
+  if (desde) filtros.desde = desde;
+  if (hasta) filtros.hasta = hasta;
 
   const pedidos = await pedidoService.getAll(filtros);
   res.json(pedidos);
@@ -34,4 +36,9 @@ const asignarDronOperador = catchAsync(async (req, res) => {
   res.json(pedido);
 });
 
-module.exports = { create, getAll, getById, updateEstado, asignarDronOperador };
+const liberarPedido = catchAsync(async (req, res) => {
+  const pedido = await pedidoService.liberarPedido(req.params.id);
+  res.json(pedido);
+});
+
+module.exports = { create, getAll, getById, updateEstado, asignarDronOperador, liberarPedido };

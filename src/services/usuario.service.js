@@ -1,4 +1,4 @@
-const { Usuario } = require('../models');
+const { Usuario, Farmacia, SuspensionHistorial } = require('../models');
 const AppError = require('../utils/AppError');
 
 const getAll = async (tipo) => {
@@ -24,13 +24,34 @@ const update = async (id, data) => {
   return usuario;
 };
 
-const updateEstado = async (id, estado) => {
+const updateEstado = async (id, estado, suspendido_por, motivo = '') => {
   if (!['Activo', 'Suspendido', 'Inactivo'].includes(estado)) {
     throw new AppError('Estado invalido', 400);
   }
   const usuario = await Usuario.findByPk(id);
   if (!usuario) throw new AppError('Usuario no encontrado', 404);
   await usuario.update({ estado_cuenta: estado });
+
+  if (estado === 'Suspendido') {
+    await SuspensionHistorial.create({
+      id_usuario: id,
+      suspendido_por: suspendido_por || null,
+      motivo: motivo || '',
+      fecha_suspension: new Date()
+    });
+  }
+
+  if (estado === 'Activo') {
+    await SuspensionHistorial.update(
+      { fecha_activacion: new Date() },
+      { where: { id_usuario: id, fecha_activacion: null } }
+    );
+  }
+
+  if (estado === 'Suspendido' && usuario.tipo_usuario === 'farmacia' && usuario.id_farmacia) {
+    await Farmacia.update({ estado_operativo: false }, { where: { id_farmacia: usuario.id_farmacia } });
+  }
+
   return usuario;
 };
 

@@ -18,8 +18,8 @@ const update = catchAsync(async (req, res) => {
 });
 
 const updateEstado = catchAsync(async (req, res) => {
-  const { estado } = req.body;
-  const usuario = await usuarioService.updateEstado(req.params.id, estado);
+  const { estado, motivo_suspension } = req.body;
+  const usuario = await usuarioService.updateEstado(req.params.id, estado, req.user?.id_usuario, motivo_suspension);
   res.json(usuario);
 });
 

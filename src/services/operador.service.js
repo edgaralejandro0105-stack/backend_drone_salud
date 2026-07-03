@@ -8,7 +8,10 @@ const create = async (data) => {
 };
 
 const getAll = async () => {
-  return OperadorVuelo.findAll({ order: [['nombre_operador', 'ASC']] });
+  return OperadorVuelo.findAll({
+    include: [{ model: Usuario, as: 'usuario', attributes: ['foto_url', 'estado_cuenta'] }],
+    order: [['nombre_operador', 'ASC']]
+  });
 };
 
 const getById = async (id) => {

@@ -11,5 +11,6 @@ router.get('/', pedidoController.getAll);
 router.get('/:id', pedidoController.getById);
 router.patch('/:id/estado', requiereRoles('admin', 'farmacia', 'operador'), pedidoController.updateEstado);
 router.post('/:id/asignar', requiereRoles('admin', 'operador'), pedidoController.asignarDronOperador);
+router.post('/:id/liberar', requiereRoles('admin', 'operador'), pedidoController.liberarPedido);
 
 module.exports = router;

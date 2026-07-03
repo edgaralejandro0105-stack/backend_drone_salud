@@ -16,9 +16,44 @@ const getById = async (id) => {
   return dron;
 };
 
-const update = async (id, data) => {
+const update = async (id, data, id_usuario = null) => {
   const dron = await FlotaDron.findByPk(id);
   if (!dron) throw new AppError('Dron no encontrado', 404);
+
+  if (data.estado_operativo === 'Mantenimiento') {
+    if (!data.motivo_mantenimiento || !data.motivo_mantenimiento.trim()) {
+      throw new AppError('Debe especificar el motivo al poner el dron en mantenimiento', 400);
+    }
+    data.motivo_mantenimiento = data.motivo_mantenimiento.trim();
+    await dron.update(data);
+
+    await MantenimientoDron.create({
+      id_dron: dron.id_dron,
+      id_usuario,
+      tipo_servicio: 'Correctivo',
+      descripcion_falla: data.motivo_mantenimiento,
+      estado: 'Pendiente'
+    });
+
+    return dron;
+  }
+
+  if (data.estado_operativo && data.estado_operativo !== 'Mantenimiento') {
+    data.motivo_mantenimiento = '';
+
+    if (data.estado_operativo === 'Activo') {
+      await MantenimientoDron.update(
+        { estado: 'Completado', fecha_completado: new Date() },
+        {
+          where: {
+            id_dron: id,
+            estado: ['Pendiente', 'En progreso']
+          }
+        }
+      );
+    }
+  }
+
   await dron.update(data);
   return dron;
 };
@@ -55,4 +90,32 @@ const liberarDron = async (id_dron) => {
   return dron;
 };
 
-module.exports = { create, getAll, getById, update, remove, getDisponibles, liberarDron };
+const getHistorial = async (id) => {
+  const dron = await FlotaDron.findByPk(id);
+  if (!dron) throw new AppError('Dron no encontrado', 404);
+
+  const mantenimientos = await MantenimientoDron.findAll({
+    where: { id_dron: id },
+    include: [
+      { association: 'usuario', attributes: ['nombre', 'apellido'] }
+    ],
+    order: [['fecha_ingreso', 'DESC']]
+  });
+
+  const pedidos = await Pedido.findAll({
+    where: { id_dron: id },
+    include: [
+      { association: 'farmacia', attributes: ['nombre_comercial'] },
+      { association: 'detalles' }
+    ],
+    order: [['fecha_creacion', 'DESC']]
+  });
+
+  return {
+    dron,
+    mantenimientos,
+    pedidos
+  };
+};
+
+module.exports = { create, getAll, getById, update, remove, getDisponibles, liberarDron, getHistorial };

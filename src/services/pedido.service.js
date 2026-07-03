@@ -1,4 +1,5 @@
-const { Pedido, DetallePedido, Producto, Pago, FlotaDron, sequelize } = require('../models');
+const { Pedido, DetallePedido, Producto, Pago, FlotaDron, Configuracion, sequelize } = require('../models');
+const { Op } = require('sequelize');
 const AppError = require('../utils/AppError');
 
 const create = async (id_cliente, data) => {
@@ -66,15 +67,28 @@ const getAll = async (filtros = {}) => {
   if (filtros.id_farmacia) where.id_farmacia = filtros.id_farmacia;
   if (filtros.estado_pedido) where.estado_pedido = filtros.estado_pedido;
 
+  if (filtros.desde || filtros.hasta) {
+    where.fecha_creacion = {};
+    if (filtros.desde) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(filtros.desde)) throw new AppError('Formato de fecha "desde" inválido', 400);
+      where.fecha_creacion[Op.gte] = sequelize.literal(`'${filtros.desde}'::timestamp`);
+    }
+    if (filtros.hasta) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(filtros.hasta)) throw new AppError('Formato de fecha "hasta" inválido', 400);
+      where.fecha_creacion[Op.lte] = sequelize.literal(`'${filtros.hasta} 23:59:59'::timestamp`);
+    }
+  }
+
   return Pedido.findAll({
     where,
     include: [
-      { association: 'detalles' },
+      { association: 'detalles', include: [{ association: 'producto', attributes: ['foto_url'] }] },
       { association: 'pago' },
       { association: 'farmacia' },
       { association: 'dron' },
-      { association: 'operador', include: [{ association: 'usuario', attributes: ['nombre', 'apellido'] }] },
-      { association: 'cliente', attributes: { exclude: ['password_hash'] } }
+      { association: 'operador' },
+      { association: 'cliente', attributes: { exclude: ['password_hash'] } },
+      { association: 'despachador', attributes: ['id_usuario', 'nombre', 'apellido', 'tipo_usuario', 'email'] }
     ],
     order: [['fecha_creacion', 'DESC']]
   });
@@ -141,4 +155,13 @@ const asignarDronOperador = async (id, id_dron, id_operador) => {
   return pedido;
 };
 
-module.exports = { create, getAll, getById, updateEstado, asignarDronOperador };
+const liberarPedido = async (id) => {
+  const pedido = await Pedido.findByPk(id);
+  if (!pedido) throw new AppError('Pedido no encontrado', 404);
+  if (pedido.estado_pedido !== 'En transito') throw new AppError('El pedido debe estar en En tránsito', 400);
+  if (pedido.id_dron) await FlotaDron.update({ estado_operativo: 'Activo' }, { where: { id_dron: pedido.id_dron } });
+  await pedido.update({ id_dron: null, id_operador: null, estado_pedido: 'Preparado', timestamp_inicio: null });
+  return pedido;
+};
+
+module.exports = { create, getAll, getById, updateEstado, asignarDronOperador, liberarPedido };

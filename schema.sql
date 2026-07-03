@@ -11,7 +11,7 @@ CREATE TABLE farmacias_asociadas (
   telefono VARCHAR(15) NOT NULL DEFAULT '',
   email VARCHAR(60) NOT NULL DEFAULT '',
   ciudad VARCHAR(50) NOT NULL DEFAULT '',
-  direccion VARCHAR(150) NOT NULL DEFAULT '',
+  direccion TEXT DEFAULT '',
   lat VARCHAR(50) NOT NULL DEFAULT '',
   lng VARCHAR(50) NOT NULL DEFAULT '',
   logo_url TEXT DEFAULT '',
@@ -229,3 +229,15 @@ CREATE TABLE calificaciones (
 
 CREATE INDEX idx_calificaciones_farmacia ON calificaciones(id_farmacia);
 CREATE INDEX idx_calificaciones_operador ON calificaciones(id_operador);
+
+CREATE TABLE configuraciones (
+  id_config SERIAL PRIMARY KEY,
+  clave VARCHAR(50) NOT NULL UNIQUE,
+  valor VARCHAR(255) NOT NULL DEFAULT '',
+  descripcion VARCHAR(255) DEFAULT '',
+  fecha_actualizacion TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+INSERT INTO configuraciones (clave, valor, descripcion) VALUES
+('cargo_dron', '5000', 'Tarifa fija de envio por dron (Bs.)')
+ON CONFLICT (clave) DO NOTHING;
