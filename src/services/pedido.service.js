@@ -63,23 +63,36 @@ const create = async (id_cliente, data) => {
 
 const getAll = async (filtros = {}) => {
   const where = {};
+
   if (filtros.id_cliente) where.id_cliente = filtros.id_cliente;
   if (filtros.id_farmacia) where.id_farmacia = filtros.id_farmacia;
+  if (filtros.id_operador) where.id_operador = filtros.id_operador;
+  if (filtros.id_usuario_despacho) where.id_usuario_despacho = filtros.id_usuario_despacho;
   if (filtros.estado_pedido) where.estado_pedido = filtros.estado_pedido;
+
+  if (filtros.search) {
+    where[Op.or] = [
+      sequelize.where(sequelize.cast(sequelize.col('Pedido.id_pedido'), 'TEXT'), { [Op.iLike]: `%${filtros.search}%` }),
+    ];
+  }
 
   if (filtros.desde || filtros.hasta) {
     where.fecha_creacion = {};
     if (filtros.desde) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(filtros.desde)) throw new AppError('Formato de fecha "desde" inválido', 400);
-      where.fecha_creacion[Op.gte] = sequelize.literal(`'${filtros.desde}'::timestamp`);
+      where.fecha_creacion[Op.gte] = filtros.desde + ' 00:00:00';
     }
     if (filtros.hasta) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(filtros.hasta)) throw new AppError('Formato de fecha "hasta" inválido', 400);
-      where.fecha_creacion[Op.lte] = sequelize.literal(`'${filtros.hasta} 23:59:59'::timestamp`);
+      where.fecha_creacion[Op.lte] = filtros.hasta + ' 23:59:59';
     }
   }
 
-  return Pedido.findAll({
+  const page = filtros.page || 1;
+  const limit = filtros.limit || 10;
+  const offset = (page - 1) * limit;
+
+  const { count, rows } = await Pedido.findAndCountAll({
     where,
     include: [
       { association: 'detalles', include: [{ association: 'producto', attributes: ['foto_url'] }] },
@@ -90,8 +103,12 @@ const getAll = async (filtros = {}) => {
       { association: 'cliente', attributes: { exclude: ['password_hash'] } },
       { association: 'despachador', attributes: ['id_usuario', 'nombre', 'apellido', 'tipo_usuario', 'email'] }
     ],
-    order: [['fecha_creacion', 'DESC']]
+    order: [['fecha_creacion', 'DESC']],
+    limit,
+    offset,
+    distinct: true,
   });
+  return { data: rows, total: count, page, totalPages: Math.ceil(count / limit) };
 };
 
 const getById = async (id) => {

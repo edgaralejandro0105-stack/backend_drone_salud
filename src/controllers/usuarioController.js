@@ -2,9 +2,14 @@ const usuarioService = require('../services/usuario.service');
 const catchAsync = require('../utils/catchAsync');
 
 const getAll = catchAsync(async (req, res) => {
-  const { tipo } = req.query;
-  const usuarios = await usuarioService.getAll(tipo);
-  res.json(usuarios);
+  const { tipo, search, page, limit } = req.query;
+  const result = await usuarioService.getAll({
+    tipo,
+    search,
+    page: parseInt(page) || 1,
+    limit: parseInt(limit) || 10,
+  });
+  res.json(result);
 });
 
 const getById = catchAsync(async (req, res) => {

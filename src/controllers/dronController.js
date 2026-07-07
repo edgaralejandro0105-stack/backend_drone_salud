@@ -7,8 +7,13 @@ const create = catchAsync(async (req, res) => {
 });
 
 const getAll = catchAsync(async (req, res) => {
-  const drones = await dronService.getAll();
-  res.json(drones);
+  const { search, page, limit } = req.query;
+  const result = await dronService.getAll({
+    search,
+    page: parseInt(page) || 1,
+    limit: parseInt(limit) || 10,
+  });
+  res.json(result);
 });
 
 const getById = catchAsync(async (req, res) => {

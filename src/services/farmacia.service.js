@@ -8,8 +8,25 @@ const create = async (data) => {
   return Farmacia.create(data);
 };
 
-const getAll = async () => {
-  return Farmacia.findAll({ order: [['nombre_comercial', 'ASC']] });
+const getAll = async ({ search, page = 1, limit = 10 } = {}) => {
+  const where = {};
+  if (search) {
+    where[Op.or] = [
+      { nombre_comercial: { [Op.iLike]: `%${search}%` } },
+      { rif: { [Op.iLike]: `%${search}%` } },
+      { email: { [Op.iLike]: `%${search}%` } },
+      { telefono: { [Op.iLike]: `%${search}%` } },
+      { ciudad: { [Op.iLike]: `%${search}%` } },
+    ];
+  }
+  const offset = (page - 1) * limit;
+  const { count, rows } = await Farmacia.findAndCountAll({
+    where,
+    order: [['nombre_comercial', 'ASC']],
+    limit,
+    offset,
+  });
+  return { data: rows, total: count, page, totalPages: Math.ceil(count / limit) };
 };
 
 const getById = async (id) => {

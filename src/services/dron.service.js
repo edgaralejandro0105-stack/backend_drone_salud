@@ -6,8 +6,24 @@ const create = async (data) => {
   return FlotaDron.create(data);
 };
 
-const getAll = async () => {
-  return FlotaDron.findAll({ order: [['id_dron', 'ASC']] });
+const getAll = async ({ search, page = 1, limit = 10 } = {}) => {
+  const where = {};
+  if (search) {
+    where[Op.or] = [
+      { modelo: { [Op.iLike]: `%${search}%` } },
+      { fabricante: { [Op.iLike]: `%${search}%` } },
+      { matricula: { [Op.iLike]: `%${search}%` } },
+      { numero_serie: { [Op.iLike]: `%${search}%` } },
+    ];
+  }
+  const offset = (page - 1) * limit;
+  const { count, rows } = await FlotaDron.findAndCountAll({
+    where,
+    order: [['id_dron', 'ASC']],
+    limit,
+    offset,
+  });
+  return { data: rows, total: count, page, totalPages: Math.ceil(count / limit) };
 };
 
 const getById = async (id) => {
@@ -19,6 +35,10 @@ const getById = async (id) => {
 const update = async (id, data, id_usuario = null) => {
   const dron = await FlotaDron.findByPk(id);
   if (!dron) throw new AppError('Dron no encontrado', 404);
+
+  if (data.peso_maximo_despegue_kg === '' || data.peso_maximo_despegue_kg === undefined) delete data.peso_maximo_despegue_kg;
+  if (data.horas_vuelo === '') data.horas_vuelo = 0;
+  if (data.fecha_adquisicion === '') data.fecha_adquisicion = null;
 
   if (data.estado_operativo === 'Mantenimiento') {
     if (!data.motivo_mantenimiento || !data.motivo_mantenimiento.trim()) {

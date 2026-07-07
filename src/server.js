@@ -107,6 +107,39 @@ const start = async () => {
       await sequelize.query(`ALTER TABLE farmacias_asociadas ALTER COLUMN direccion TYPE TEXT`);
     } catch (err) {}
 
+    try {
+      await sequelize.query(`ALTER TABLE productos ADD COLUMN IF NOT EXISTS stock_minimo INTEGER DEFAULT 10`);
+      await sequelize.query(`UPDATE productos SET stock_minimo = 10 WHERE stock_minimo IS NULL`);
+    } catch (err) {}
+
+    try {
+      const tablas = [
+        ['usuarios', 'id_usuario'],
+        ['farmacias_asociadas', 'id_farmacia'],
+        ['operadores_vuelo', 'id_operador'],
+        ['pedidos', 'id_pedido'],
+        ['detalle_pedido', 'id_detalle'],
+        ['pagos', 'id_pago'],
+        ['productos', 'id_producto'],
+        ['flota_drones', 'id_dron'],
+        ['mantenimiento_drones', 'id_mantenimiento'],
+        ['bitacora_telemetria', 'id_log'],
+        ['direcciones_cliente', 'id_direccion'],
+        ['calificaciones', 'id_calificacion'],
+        ['configuraciones', 'id_config'],
+        ['horarios_farmacia', 'id_horario'],
+        ['historial_suspensiones', 'id_suspension'],
+      ]
+      for (const [tabla, columna] of tablas) {
+        await sequelize.query(`
+          SELECT setval(pg_get_serial_sequence('${tabla}', '${columna}'), COALESCE((SELECT MAX(${columna}) FROM ${tabla}), 1))
+        `)
+      }
+      console.log('🔁 Secuencias de IDs sincronizadas')
+    } catch (err) {
+      console.warn('⚠️ No se pudieron sincronizar las secuencias:', err.message)
+    }
+
     app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     });

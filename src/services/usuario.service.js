@@ -1,9 +1,32 @@
+const { Op } = require('sequelize');
 const { Usuario, Farmacia, SuspensionHistorial } = require('../models');
 const AppError = require('../utils/AppError');
 
-const getAll = async (tipo) => {
-  const where = tipo ? { tipo_usuario: tipo } : {};
-  return Usuario.findAll({ where, order: [['fecha_registro', 'DESC']] });
+const getAll = async ({ tipo, search, page = 1, limit = 10 }) => {
+  const where = {};
+  if (tipo) where.tipo_usuario = tipo;
+  if (search) {
+    where[Op.or] = [
+      { nombre: { [Op.iLike]: `%${search}%` } },
+      { apellido: { [Op.iLike]: `%${search}%` } },
+      { email: { [Op.iLike]: `%${search}%` } },
+      { cedula: { [Op.iLike]: `%${search}%` } },
+      { telefono: { [Op.iLike]: `%${search}%` } },
+    ];
+  }
+  const offset = (page - 1) * limit;
+  const { count, rows } = await Usuario.findAndCountAll({
+    where,
+    order: [['fecha_registro', 'DESC']],
+    limit,
+    offset,
+  });
+  return {
+    data: rows,
+    total: count,
+    page,
+    totalPages: Math.ceil(count / limit),
+  };
 };
 
 const getById = async (id) => {

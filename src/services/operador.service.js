@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const { OperadorVuelo, Usuario } = require('../models');
 const AppError = require('../utils/AppError');
 
@@ -7,11 +8,27 @@ const create = async (data) => {
   return OperadorVuelo.create(data);
 };
 
-const getAll = async () => {
-  return OperadorVuelo.findAll({
+const getAll = async ({ search, page = 1, limit = 10 } = {}) => {
+  const where = {};
+  if (search) {
+    where[Op.or] = [
+      { nombre_operador: { [Op.iLike]: `%${search}%` } },
+      { apellido: { [Op.iLike]: `%${search}%` } },
+      { email: { [Op.iLike]: `%${search}%` } },
+      { cedula: { [Op.iLike]: `%${search}%` } },
+      { telefono: { [Op.iLike]: `%${search}%` } },
+      { nro_licencia: { [Op.iLike]: `%${search}%` } },
+    ];
+  }
+  const offset = (page - 1) * limit;
+  const { count, rows } = await OperadorVuelo.findAndCountAll({
+    where,
     include: [{ model: Usuario, as: 'usuario', attributes: ['foto_url', 'estado_cuenta'] }],
-    order: [['nombre_operador', 'ASC']]
+    order: [['nombre_operador', 'ASC']],
+    limit,
+    offset,
   });
+  return { data: rows, total: count, page, totalPages: Math.ceil(count / limit) };
 };
 
 const getById = async (id) => {

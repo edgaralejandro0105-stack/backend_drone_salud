@@ -7,8 +7,13 @@ const create = catchAsync(async (req, res) => {
 });
 
 const getAll = catchAsync(async (req, res) => {
-  const farmacias = await farmaciaService.getAll();
-  res.json(farmacias);
+  const { search, page, limit } = req.query;
+  const result = await farmaciaService.getAll({
+    search,
+    page: parseInt(page) || 1,
+    limit: parseInt(limit) || 10,
+  });
+  res.json(result);
 });
 
 const getById = catchAsync(async (req, res) => {

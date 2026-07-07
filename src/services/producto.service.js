@@ -1,4 +1,5 @@
 const { Producto } = require('../models');
+const { Op } = require('sequelize');
 const AppError = require('../utils/AppError');
 
 const create = async (data) => {
@@ -9,8 +10,25 @@ const getAll = async (filtros = {}) => {
   const where = { activo: true };
   if (filtros.id_farmacia) where.id_farmacia = filtros.id_farmacia;
   if (filtros.categoria) where.categoria = filtros.categoria;
+  if (filtros.search) {
+    where[Op.or] = [
+      { nombre: { [Op.iLike]: `%${filtros.search}%` } },
+      { codigo: { [Op.iLike]: `%${filtros.search}%` } },
+      { concentracion: { [Op.iLike]: `%${filtros.search}%` } },
+    ];
+  }
 
-  return Producto.findAll({ where, order: [['nombre', 'ASC']] });
+  const page = filtros.page || 1;
+  const limit = filtros.limit || 10;
+  const offset = (page - 1) * limit;
+
+  const { count, rows } = await Producto.findAndCountAll({
+    where,
+    order: [['nombre', 'ASC']],
+    limit,
+    offset,
+  });
+  return { data: rows, total: count, page, totalPages: Math.ceil(count / limit) };
 };
 
 const getById = async (id) => {
